@@ -17,15 +17,15 @@ jobs:
       - name: Set up build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential pkg-config json-c json-c-dev
+          sudo apt-get install -y build-essential pkg-config libjson-c-dev
 
       - name: Build for ${{ matrix.arch }}
         run: |
           mkdir -p build
-          gcc -Wall -Wextra -I/opt/homebrew/Cellar/json-c/0.17/include -c -o build/main.o main.c
-          gcc -Wall -Wextra -I/opt/homebrew/Cellar/json-c/0.17/include -c -o build/actions.o actions.c
-          gcc -Wall -Wextra -I/opt/homebrew/Cellar/json-c/0.17/include -c -o build/database.o database.c
-          gcc build/main.o build/actions.o build/database.o -L/opt/homebrew/Cellar/json-c/0.17/lib -ljson-c -o build/sshtool-${{ matrix.arch }}
+          gcc -Wall -Wextra -I/usr/include/json-c -c -o build/main.o main.c
+          gcc -Wall -Wextra -I/usr/include/json-c -c -o build/actions.o actions.c
+          gcc -Wall -Wextra -I/usr/include/json-c -c -o build/database.o database.c
+          gcc build/main.o build/actions.o build/database.o -ljson-c -o build/sshtool-${{ matrix.arch }}
 
       - name: Upload binaries
         uses: actions/upload-artifact@v2
@@ -37,17 +37,17 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download binaries
+      - name: Download binaries x86_64
         uses: actions/download-artifact@v2
         with:
           name: sshtool-x86_64
-          path: build/sshtool-x86_64
+          path: build/
 
-      - name: Download binaries
+      - name: Download binaries arm64
         uses: actions/download-artifact@v2
         with:
           name: sshtool-arm64
-          path: build/sshtool-arm64
+          path: build/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
